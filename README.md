@@ -1,2 +1,2 @@
-# gconf-client
-client for gconf
+# gconf-go-client
+go client for gconf
