@@ -12,6 +12,7 @@ var currentAppId string
 var clientId string
 var ds *dataStore
 
+// call first  at program start palace
 func Init(appName string) {
 	appNameFromEnv := os.Getenv("APP_NAME")
 	if appNameFromEnv != "" && appNameFromEnv != appName {

@@ -11,7 +11,7 @@ import (
 
 const (
 	//fileType
-	unkown     = iota //0，未知或者原始的string
+	text       = iota //0，原始的为文本s
 	properties        //1，properties文件格式
 	jsons             //2，json形式
 )
@@ -33,7 +33,7 @@ type Value struct {
 }
 
 func newValue(key, value string) *Value {
-	fileType := unkown
+	fileType := text
 	if strings.HasSuffix(key, ".properties") {
 		fileType = properties
 	} else if strings.HasSuffix(key, ".json") {
