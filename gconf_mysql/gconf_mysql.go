@@ -1,12 +1,9 @@
-package gconf_middleware
+package gconf_mysql
 
 import (
-	"crypto/rsa"
-	"crypto/x509"
 	"database/sql"
-	"encoding/base64"
+	"encoding/json"
 	"fmt"
-	"math/big"
 	"net/url"
 	"strconv"
 	"strings"
@@ -64,7 +61,7 @@ func (dataSourceConfig *MySQLDataSourceConfig) SlaveDataSourceName() string {
 }
 
 func (dataSourceConfig *MySQLDataSourceConfig) dataSourceName(preferSlave bool) string {
-	var pwd = decrypt(dataSourceConfig.EncryptedPassword)
+	var pwd = gconf.Decrypt(dataSourceConfig.EncryptedPassword)
 	if pwd == "" {
 		pwd = dataSourceConfig.Password
 	}
@@ -120,43 +117,20 @@ func (dataSourceConfig *MySQLDataSourceConfig) getMysqlServer(preferSlave bool) 
 	return nil
 }
 
-func decrypt(encryptedPassword string) string {
-	if encryptedPassword == "" {
-		return ""
+func GetMySQLDataSourceConfig(key string) *MySQLDataSourceConfig {
+	if key == "" {
+		panic("mysql datasource key is empty")
 	}
-	encryptedDecodeBytes, err := base64.StdEncoding.DecodeString(encryptedPassword)
+
+	dataSourceConfig := new(MySQLDataSourceConfig)
+	configValue := gconf.GetCurrentConfigCollection().GetValue(key).Raw()
+	err := json.Unmarshal([]byte(configValue), dataSourceConfig)
 	if err != nil {
-		return ""
+		panic(err.Error())
 	}
-	publicKey := gconf.GetGlobalConfigCollection().GetValue("publicKey").Raw()
-	key, err := base64.StdEncoding.DecodeString(publicKey)
-	if err != nil {
-		return ""
-	}
-	pubKey, err := x509.ParsePKIXPublicKey(key)
-	if err != nil {
-		return ""
-	}
-	pub := pubKey.(*rsa.PublicKey)
-	return string(rsaPublicDecrypt(pub, encryptedDecodeBytes))
+	return dataSourceConfig
 }
 
-func rsaPublicDecrypt(pubKey *rsa.PublicKey, data []byte) []byte {
-	c := new(big.Int)
-	m := new(big.Int)
-	m.SetBytes(data)
-	e := big.NewInt(int64(pubKey.E))
-	c.Exp(m, e, pubKey.N)
-	out := c.Bytes()
-	skip := 0
-	for i := 2; i < len(out); i++ {
-		if i+1 >= len(out) {
-			break
-		}
-		if out[i] == 0xff && out[i+1] == 0 {
-			skip = i + 2
-			break
-		}
-	}
-	return out[skip:]
+func GetDefaultMySQLDataSourceConfig() *MySQLDataSourceConfig {
+	return GetMySQLDataSourceConfig(defaultMySQLConfigKey)
 }

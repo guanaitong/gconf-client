@@ -1,9 +1,8 @@
-package gconf_middleware
+package gconf_mongo
 
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"time"
 
 	"github.com/guanaitong/gconf-go-client"
@@ -105,7 +104,7 @@ func GetDefaultMongoConfig() *MongoConfig {
 
 func GetMongoConfig(key string) *MongoConfig {
 	if key == "" {
-		panic(errors.New("mongo config is null"))
+		panic("mongo datasource key is empty")
 	}
 
 	mongoConfig := new(MongoConfig)

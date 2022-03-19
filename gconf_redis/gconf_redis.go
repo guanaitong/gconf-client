@@ -1,8 +1,7 @@
-package gconf_middleware
+package gconf_redis
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -43,7 +42,7 @@ type RedisConfig struct {
 }
 
 func (redisConfig *RedisConfig) NewClient() *redis.Client {
-	var pwd = decrypt(redisConfig.EncryptedPassword)
+	var pwd = gconf.Decrypt(redisConfig.EncryptedPassword)
 	if pwd == "" {
 		pwd = redisConfig.Password
 	}
@@ -73,7 +72,7 @@ func (redisConfig *RedisConfig) NewClient() *redis.Client {
 
 func GetRedisConfig(key string) *RedisConfig {
 	if key == "" {
-		panic(errors.New("redis config is null"))
+		panic("redis config key is empty")
 	}
 
 	redisConfig := new(RedisConfig)

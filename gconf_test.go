@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -73,18 +72,11 @@ func TestReflectBase(t *testing.T) {
 	}
 }
 
-func TestSplit(tt *testing.T) {
-	t := "mysql_url=amy:1qazxsw@@tcp(mdb.servers.dev.ofc:3306)/notifyagent?charset=utf8"
-	ss := strings.SplitN(t, "=", 2)
-	for _, s := range ss {
-		fmt.Println(s)
+func TestDecrypt(t *testing.T) {
+	epwd := "E+lDullrAU/qV1MVqR7L0GrbBkFHWaftsKTVni3ooL90/PZyH/VpcKF/HqJqzAyzoHI8vR+tawW/kE5sgRcpVkYivugNhWhEtnQpbRNjvnkCd8OcyuhjEVnrzDg4iNtJ4+RWKq37vb4aXU1/skmXDLd1Jf2ZNYndzTgHM1EbP6Ac0KqWzpeS4o2QxtX4E1nzdrxCOtEYtTewtXiaxA4kHdVb6fIkLa/OvY2xDNOQZKhlw9IU6LC3Ypq8qqQPq1dCW+Y/TzktZcbKVmQ0aHchPLuWpiO2VNwojHu7hiD7ZiNsELiDvose8iNNSwwpfTKbIODqjtgBrRWD/VLjCbMcxg=="
+	pwd := Decrypt(epwd)
+	if pwd == "" {
+		t.Error("error")
 	}
-}
-
-func TestSplit1(tt *testing.T) {
-	t := "mysql_url="
-	ss := strings.SplitN(t, "=", 2)
-	for _, s := range ss {
-		fmt.Println(s)
-	}
+	fmt.Println(pwd)
 }
