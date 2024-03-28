@@ -30,16 +30,25 @@ func Init(appName string) {
 		}
 		return value
 	}
-	workEnv, workIdc := getEnv("WORK_ENV", "dev"), getEnv("WORK_IDC", "ofc")
+	domain := "gconf"
 
-	domainSuffix := ""
-	if inK8s {
-		// in k8s,gconf deploy to kube-system namespace
-		domainSuffix = "kube-system"
-	} else if workEnv == "prepare" && workIdc == "sh" {
-		domainSuffix = "services.product.sh"
-	} else {
-		domainSuffix = "services." + workEnv + "." + workIdc
+	if !inK8s {
+		domainSuffix := "dev.ofc"
+		workRegion := getEnv("WORK_REGION", "dev-ofc")
+		if workRegion == "dev-ofc" {
+			domainSuffix = "dev.ofc"
+		} else if workRegion == "test-ali" {
+			domainSuffix = "test.ali"
+		} else if workRegion == "stage-sh" {
+			domainSuffix = "product.sh"
+		} else if workRegion == "prod-sh" {
+			domainSuffix = "product.sh"
+		} else if workRegion == "stage-lyra" {
+			domainSuffix = "product.lyra"
+		} else if workRegion == "prod-lyra" {
+			domainSuffix = "product.lyra"
+		}
+		domain = "gconf.services." + domainSuffix
 	}
 	var appInstance string
 	if inK8s {
@@ -52,7 +61,7 @@ func Init(appName string) {
 	ds = &dataStore{
 		dataCache: map[string]*ConfigCollection{},
 		client: &gConfHttpClient{
-			baseUrl:  "http://gconf." + domainSuffix + "/api",
+			baseUrl:  "http://" + domain + "/api",
 			clientId: clientId,
 		},
 		mux: sync.Mutex{},
